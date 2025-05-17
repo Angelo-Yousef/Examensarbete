@@ -55,9 +55,9 @@ export default function HomePage() {
           </div>
           <div className="text-content">
             <h2>Kontakta oss</h2>
-            <p>Telefon: 0520-XXX XXX</p>
-            <p>Email: info@munhalsanlillaedet.se</p>
-            <p>Adress: Lilla Edet, Sverige</p>
+          <p>Telefon: 0520‑140 80</p>
+          <p>Email: info@munhalsanle.se</p>
+          <p>Adress: Edsgatan 1a, 46331 Lilla Edet</p>
           </div>
         </div>
       </section>

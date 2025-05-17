@@ -14,11 +14,17 @@ const Navbar = () => {
           <ul>
             <li><Link href="/about">Om oss</Link></li>
             <li><Link href="/behandlingar">Våra behandlingar</Link></li>
-            <li><a href="#team">Vårt team</a></li>
-            <li><a href="#reviews">Recensioner</a></li>
-            <li><a href="#faq">FAQ</a></li>
-            <li><a href="#contact">Kontakt</a></li>
-            <li><a href="#book" className="book-button">Boka tid</a></li>
+            <li><Link href="/contact">Kontakt</Link></li>
+            <li>
+              <a
+                href="https://www.muntra.com/tandlakare/yara-ibrahim/p/6857?language=sv"
+                className="book-button"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Boka tid
+              </a>
+            </li>
           </ul>
         </nav>
       </div>
