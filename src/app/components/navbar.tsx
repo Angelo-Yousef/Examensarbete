@@ -15,6 +15,8 @@ const Navbar = () => {
             <li><Link href="/about">Om oss</Link></li>
             <li><Link href="/behandlingar">Våra behandlingar</Link></li>
             <li><Link href="/contact">Kontakt</Link></li>
+            <li><Link href="/login">Logga in</Link></li>
+            <li><Link href="/book">Boka tid</Link></li>
             <li>
               <a
                 href="https://www.muntra.com/tandlakare/yara-ibrahim/p/6857?language=sv"
