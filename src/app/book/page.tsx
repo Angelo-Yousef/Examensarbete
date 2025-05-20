@@ -1,25 +1,98 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 
-const Booking = () => {
+// Definiera typ för en bokning
+interface Booking {
+  _id: string;
+  date: string;
+  time: string;
+}
+
+const MyBookings = () => {
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [email, setEmail] = useState('');
+
+  useEffect(() => {
+    const userEmail = localStorage.getItem('email');
+    if (!userEmail) return;
+
+    setEmail(userEmail);
+
+    fetch(`http://localhost:5000/api/bookings/${userEmail}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setBookings(data);
+      })
+      .catch((err) => {
+        console.error('Fel vid hämtning av bokningar:', err);
+      });
+  }, []);
+
+  const handleDeleteBooking = async (bookingId: string) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/bookings/${bookingId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.ok) {
+        setBookings(bookings.filter((booking) => booking._id !== bookingId));
+      } else {
+        alert('❌ Kunde inte avboka bokningen.');
+      }
+    } catch (err) {
+      alert('❌ Serverfel vid avbokning.');
+    }
+  };
+
+  return (
+    <div style={{ paddingTop: '40px' }}>
+      <h2>📅 Mina bokningar ({email})</h2>
+      {bookings.length === 0 ? (
+        <p>Inga bokningar hittades.</p>
+      ) : (
+        <ul>
+          {bookings.map((booking) => (
+            <li key={booking._id}>
+              <strong>{booking.date.split('T')[0]}</strong> kl {booking.time}
+              <button onClick={() => handleDeleteBooking(booking._id)}>Avboka</button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
+const BookingForm = () => {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [weekOffset, setWeekOffset] = useState(0);
 
   const today = new Date();
   const daysAhead = 7;
-
-  const availableTimes = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00"];
+  const availableTimes = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00'];
 
   const generateDates = () => {
     const dates: Date[] = [];
+    const start = new Date(today);
+    start.setDate(today.getDate() + weekOffset * 7);
+
     for (let i = 0; i < daysAhead; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
+      const date = new Date(start);
+      date.setDate(start.getDate() + i);
       dates.push(date);
     }
+
     return dates;
   };
 
@@ -34,12 +107,12 @@ const Booking = () => {
     if (!userEmail) return;
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem('token');
 
-      const res = await fetch("http://localhost:5000/api/bookings", {
-        method: "POST",
+      const res = await fetch('http://localhost:5000/api/bookings', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
@@ -54,17 +127,16 @@ const Booking = () => {
       if (res.ok) {
         setSubmitted(true);
       } else {
-        alert(data.message || "❌ Bokningen misslyckades.");
+        alert(data.message || '❌ Bokningen misslyckades.');
       }
     } catch (err) {
-      alert("❌ Serverfel vid bokning.");
+      alert('❌ Serverfel vid bokning.');
     }
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const email = localStorage.getItem("email"); // måste sättas i LoginRegister
-
+    const token = localStorage.getItem('token');
+    const email = localStorage.getItem('email');
     if (token && email) {
       setUserEmail(email);
     }
@@ -79,6 +151,22 @@ const Booking = () => {
             <p className="warning">🔒 Du måste vara inloggad för att boka en tid.</p>
           ) : !submitted ? (
             <form onSubmit={handleSubmit}>
+              <div className="week-navigation">
+                <button
+                  type="button"
+                  onClick={() => setWeekOffset((prev) => prev - 1)}
+                  disabled={weekOffset === 0}
+                >
+                  ← Föregående
+                </button>
+                <span>
+                  Vecka från {generateDates()[0].toLocaleDateString('sv-SE')}
+                </span>
+                <button type="button" onClick={() => setWeekOffset((prev) => prev + 1)}>
+                  Nästa →
+                </button>
+              </div>
+
               <div className="calendar-grid">
                 <div className="header">
                   <div></div>
@@ -89,11 +177,11 @@ const Booking = () => {
                   ))}
                 </div>
                 {generateDates().map((date) => {
-                  const iso = date.toISOString().split("T")[0];
-                  const label = date.toLocaleDateString("sv-SE", {
-                    weekday: "short",
-                    day: "numeric",
-                    month: "short",
+                  const iso = date.toISOString().split('T')[0];
+                  const label = date.toLocaleDateString('sv-SE', {
+                    weekday: 'short',
+                    day: 'numeric',
+                    month: 'short',
                   });
 
                   return (
@@ -104,10 +192,10 @@ const Booking = () => {
                         return (
                           <div
                             key={time}
-                            className={`time-slot ${isSelected ? "selected" : ""}`}
+                            className={`time-slot ${isSelected ? 'selected' : ''}`}
                             onClick={() => handleSelect(iso, time)}
                           >
-                            {isSelected ? "✔" : ""}
+                            {isSelected ? '✔' : ''}
                           </div>
                         );
                       })}
@@ -130,8 +218,8 @@ const Booking = () => {
           )}
         </div>
 
-        <div className="image-content">
-          <img src="/images/tandlakare-bild.jpg" alt="Bokning" />
+        <div className="my-bookings-container">
+          <MyBookings />
         </div>
       </div>
 
@@ -143,30 +231,20 @@ const Booking = () => {
 
         .section-container {
           display: flex;
-          flex-direction: column;
+          justify-content: space-between;
           gap: 40px;
-        }
-
-        @media (min-width: 768px) {
-          .section-container {
-            flex-direction: row;
-            justify-content: space-between;
-          }
+          max-width: 1200px;
+          margin: 0 auto;
         }
 
         .text-content {
-          flex: 1;
+          flex: 2;
           max-width: 600px;
         }
 
-        .image-content {
+        .my-bookings-container {
           flex: 1;
-        }
-
-        .image-content img {
-          width: 100%;
-          border-radius: 10px;
-          object-fit: cover;
+          max-width: 400px;
         }
 
         form {
@@ -216,7 +294,36 @@ const Booking = () => {
           font-weight: bold;
         }
 
-        button[type="submit"] {
+        .week-navigation {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 10px;
+          gap: 10px;
+        }
+
+        .week-navigation button {
+          padding: 8px 12px;
+          background-color: #f0f0f0;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+
+        .week-navigation button:hover:not(:disabled) {
+          background-color: #ddd;
+        }
+
+        .week-navigation button:disabled {
+          cursor: not-allowed;
+          opacity: 0.5;
+        }
+
+        .week-navigation span {
+          font-weight: bold;
+        }
+
+        button[type='submit'] {
           padding: 12px;
           background-color: #0070f3;
           color: white;
@@ -225,7 +332,7 @@ const Booking = () => {
           cursor: pointer;
         }
 
-        button[type="submit"]:hover {
+        button[type='submit']:hover {
           background-color: #005bb5;
         }
 
@@ -247,4 +354,4 @@ const Booking = () => {
   );
 };
 
-export default Booking;
+export default BookingForm;

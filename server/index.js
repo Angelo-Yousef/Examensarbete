@@ -5,7 +5,9 @@ const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
-const User = require('./models/user'); // 🔹 Användarmodell
+
+const User = require('./models/user'); // Användarmodell
+const bookingRoutes = require('./routes/bookingRoutes'); // Bokningsrutter
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -14,17 +16,17 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// 🔗 Anslut till MongoDB (OBS! .env bör ha databasen angiven, ex: mongodb://127.0.0.1:27017/kliniken)
+// Anslut till MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB ansluten'))
   .catch((err) => console.error('❌ MongoDB-fel:', err));
 
-// ✅ ROOT-rutt
+// ROOT-rutt
 app.get('/', (req, res) => {
   res.send('Välkommen till servern!');
 });
 
-// 📧 Kontaktformulär
+// 📩 Kontaktformulär
 app.post('/api/contact', async (req, res) => {
   const { name, email, message } = req.body;
 
@@ -41,7 +43,7 @@ app.post('/api/contact', async (req, res) => {
       },
     });
 
-    // Skicka till kunden
+    // Skicka bekräftelse till användaren
     await transporter.sendMail({
       from: `"Din Klinik" <${process.env.EMAIL_USER}>`,
       to: email,
@@ -49,7 +51,7 @@ app.post('/api/contact', async (req, res) => {
       text: `Hej ${name},\n\nTack för att du kontaktade oss! Vi återkommer så snart vi kan.\n\nMeddelande:\n"${message}"`,
     });
 
-    // Skicka till dig själv
+    // Skicka kopia till kliniken
     await transporter.sendMail({
       from: email,
       to: process.env.EMAIL_USER,
@@ -88,7 +90,7 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-// 🔐 Logga in användare
+// 🔓 Logga in användare
 app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -111,7 +113,10 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// 🟢 Starta servern
+// 📅 Boknings-API (POST, GET, DELETE via bookingRoutes.js)
+app.use('/api/bookings', bookingRoutes);
+
+// 🚀 Starta servern
 app.listen(PORT, () => {
   console.log(`✅ Servern körs på http://localhost:${PORT}`);
 });

@@ -1,9 +1,8 @@
-// models/booking.js
 const mongoose = require('mongoose');
 
 const bookingSchema = new mongoose.Schema({
   email: { type: String, required: true },
-  date: { type: Date, required: true },
+  date: { type: String, required: true },
   time: { type: String, required: true },
 });
 
