@@ -75,6 +75,7 @@ const BookingForm = () => {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [bookedTimes, setBookedTimes] = useState<{ [key: string]: string[] }>({}); // För att hålla koll på bokade tider per dag
   const [submitted, setSubmitted] = useState(false);
   const [weekOffset, setWeekOffset] = useState(0);
 
@@ -82,6 +83,7 @@ const BookingForm = () => {
   const daysAhead = 7;
   const availableTimes = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00'];
 
+  // Generera datum för den valda veckan
   const generateDates = () => {
     const dates: Date[] = [];
     const start = new Date(today);
@@ -96,15 +98,56 @@ const BookingForm = () => {
     return dates;
   };
 
+  // Kontrollera om den valda tiden redan är bokad
+  const isTimeBooked = (date: string, time: string) => {
+    return bookedTimes[date]?.includes(time);
+  };
+
+  // Hämta bokningar för den inloggade användaren och lagra bokade tider
+  useEffect(() => {
+    const email = localStorage.getItem('email');
+    const token = localStorage.getItem('token');
+    if (!email || !token) return;
+
+    setUserEmail(email);
+
+    fetch(`http://localhost:5000/api/bookings/${email}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        const booked: { [key: string]: string[] } = {};
+        data.forEach((booking: Booking) => {
+          const date = booking.date.split('T')[0]; // Extrahera datumet (utan tid)
+          if (!booked[date]) {
+            booked[date] = [];
+          }
+          booked[date].push(booking.time);
+        });
+        setBookedTimes(booked);
+      })
+      .catch((err) => {
+        console.error('Fel vid hämtning av bokningar:', err);
+      });
+  }, []);
+
+  // Hantera val av tid
   const handleSelect = (date: string, time: string) => {
+    if (isTimeBooked(date, time)) {
+      alert('Den här tiden är redan bokad!');
+      return;
+    }
     setSelectedDate(date);
     setSelectedTime(time);
   };
 
+  // Skicka bokningen
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!userEmail) return;
+    if (!userEmail || !selectedDate || !selectedTime) return;
 
     try {
       const token = localStorage.getItem('token');
@@ -189,13 +232,16 @@ const BookingForm = () => {
                       <div className="date-label">{label}</div>
                       {availableTimes.map((time) => {
                         const isSelected = selectedDate === iso && selectedTime === time;
+                        const isBooked = isTimeBooked(iso, time);
                         return (
                           <div
                             key={time}
-                            className={`time-slot ${isSelected ? 'selected' : ''}`}
+                            className={`time-slot ${isSelected ? 'selected' : ''} ${isBooked ? 'booked' : ''}`}
                             onClick={() => handleSelect(iso, time)}
+                            style={{ cursor: isBooked ? 'not-allowed' : 'pointer' }}
                           >
                             {isSelected ? '✔' : ''}
+                            {isBooked ? ' (Bokad)' : ''}
                           </div>
                         );
                       })}
@@ -286,6 +332,11 @@ const BookingForm = () => {
 
         .time-slot:hover {
           background-color: #e0e0e0;
+        }
+
+        .time-slot.booked {
+          background-color: #f8d7da;
+          cursor: not-allowed;
         }
 
         .selected {

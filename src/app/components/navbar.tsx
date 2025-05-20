@@ -7,8 +7,8 @@ const Navbar = () => {
       <div className="container">
         <div className="logo">
           <Link href="/">
-            <img src="/images/tand.jpg" alt="Munhälsan i Lilla Edet" />
-          </Link>
+            <img src="/images/logo.PNG" alt="Munhälsan i Lilla Edet" />
+          </Link> 
         </div>
         <nav>
           <ul>
@@ -16,17 +16,7 @@ const Navbar = () => {
             <li><Link href="/behandlingar">Våra behandlingar</Link></li>
             <li><Link href="/contact">Kontakt</Link></li>
             <li><Link href="/login">Logga in</Link></li>
-            <li><Link href="/book">Boka tid</Link></li>
-            <li>
-              <a
-                href="https://www.muntra.com/tandlakare/yara-ibrahim/p/6857?language=sv"
-                className="book-button"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Boka tid
-              </a>
-            </li>
+            <li><Link href="/book" className="book-button">Boka tid</Link></li>
           </ul>
         </nav>
       </div>
