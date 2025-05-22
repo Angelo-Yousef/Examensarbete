@@ -53,20 +53,84 @@ const MyBookings = () => {
   };
 
   return (
-    <div style={{ paddingTop: '40px' }}>
-      <h2>📅 Mina bokningar ({email})</h2>
+    <div className="my-bookings">
+      <h2>📅 Mina bokningar</h2>
       {bookings.length === 0 ? (
         <p>Inga bokningar hittades.</p>
       ) : (
         <ul>
           {bookings.map((booking) => (
-            <li key={booking._id}>
-              <strong>{booking.date.split('T')[0]}</strong> kl {booking.time}
-              <button onClick={() => handleDeleteBooking(booking._id)}>Avboka</button>
+            <li key={booking._id} className="booking-item">
+              <span>
+                <strong>{booking.date.split('T')[0]}</strong> kl {booking.time}
+              </span>
+              <button
+                className="cancel-button"
+                onClick={() => handleDeleteBooking(booking._id)}
+                aria-label={`Avboka bokning den ${booking.date.split('T')[0]} kl ${booking.time}`}
+              >
+                Avboka
+              </button>
             </li>
           ))}
         </ul>
       )}
+
+      <style jsx>{`
+        .my-bookings {
+          background: #fff;
+          padding: 20px;
+          border-radius: 10px;
+          box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+          font-family: Arial, sans-serif;
+        }
+
+        .my-bookings h2 {
+          margin-bottom: 15px;
+          color: #0070f3;
+          text-align: center;
+        }
+
+        ul {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+
+        .booking-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 10px 15px;
+          border-bottom: 1px solid #eee;
+          font-size: 16px;
+          color: #333;
+        }
+
+        .booking-item:last-child {
+          border-bottom: none;
+        }
+
+        .cancel-button {
+          background-color: #ff4d4f;
+          color: white;
+          border: none;
+          padding: 8px 14px;
+          border-radius: 6px;
+          cursor: pointer;
+          font-weight: 600;
+          transition: background-color 0.3s ease;
+        }
+
+        .cancel-button:hover {
+          background-color: #d9363e;
+        }
+
+        .cancel-button:focus {
+          outline: 2px solid #d9363e;
+          outline-offset: 2px;
+        }
+      `}</style>
     </div>
   );
 };
@@ -75,7 +139,7 @@ const BookingForm = () => {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [bookedTimes, setBookedTimes] = useState<{ [key: string]: string[] }>({}); // För att hålla koll på bokade tider per dag
+  const [bookedTimes, setBookedTimes] = useState<{ [key: string]: string[] }>({});
   const [submitted, setSubmitted] = useState(false);
   const [weekOffset, setWeekOffset] = useState(0);
 
@@ -83,7 +147,6 @@ const BookingForm = () => {
   const daysAhead = 7;
   const availableTimes = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00'];
 
-  // Generera datum för den valda veckan
   const generateDates = () => {
     const dates: Date[] = [];
     const start = new Date(today);
@@ -98,12 +161,10 @@ const BookingForm = () => {
     return dates;
   };
 
-  // Kontrollera om den valda tiden redan är bokad
   const isTimeBooked = (date: string, time: string) => {
     return bookedTimes[date]?.includes(time);
   };
 
-  // Hämta bokningar för den inloggade användaren och lagra bokade tider
   useEffect(() => {
     const email = localStorage.getItem('email');
     const token = localStorage.getItem('token');
@@ -113,14 +174,14 @@ const BookingForm = () => {
 
     fetch(`http://localhost:5000/api/bookings/${email}`, {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     })
       .then((res) => res.json())
       .then((data) => {
         const booked: { [key: string]: string[] } = {};
         data.forEach((booking: Booking) => {
-          const date = booking.date.split('T')[0]; // Extrahera datumet (utan tid)
+          const date = booking.date.split('T')[0];
           if (!booked[date]) {
             booked[date] = [];
           }
@@ -133,7 +194,6 @@ const BookingForm = () => {
       });
   }, []);
 
-  // Hantera val av tid
   const handleSelect = (date: string, time: string) => {
     if (isTimeBooked(date, time)) {
       alert('Den här tiden är redan bokad!');
@@ -143,7 +203,6 @@ const BookingForm = () => {
     setSelectedTime(time);
   };
 
-  // Skicka bokningen
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -236,7 +295,9 @@ const BookingForm = () => {
                         return (
                           <div
                             key={time}
-                            className={`time-slot ${isSelected ? 'selected' : ''} ${isBooked ? 'booked' : ''}`}
+                            className={`time-slot ${isSelected ? 'selected' : ''} ${
+                              isBooked ? 'booked' : ''
+                            }`}
                             onClick={() => handleSelect(iso, time)}
                             style={{ cursor: isBooked ? 'not-allowed' : 'pointer' }}
                           >
@@ -252,7 +313,6 @@ const BookingForm = () => {
 
               {selectedDate && selectedTime && (
                 <>
-                  <p>📧 Bokas av: <strong>{userEmail}</strong></p>
                   <button type="submit">Bekräfta bokning</button>
                 </>
               )}
@@ -273,6 +333,7 @@ const BookingForm = () => {
         #booking {
           padding: 40px 20px;
           background-color: #f9f9f9;
+          font-family: Arial, sans-serif;
         }
 
         .section-container {
@@ -281,6 +342,7 @@ const BookingForm = () => {
           gap: 40px;
           max-width: 1200px;
           margin: 0 auto;
+          flex-wrap: wrap;
         }
 
         .text-content {
@@ -291,6 +353,7 @@ const BookingForm = () => {
         .my-bookings-container {
           flex: 1;
           max-width: 400px;
+          min-width: 280px;
         }
 
         form {
@@ -328,6 +391,7 @@ const BookingForm = () => {
           text-align: center;
           cursor: pointer;
           border-radius: 4px;
+          user-select: none;
         }
 
         .time-slot:hover {
@@ -337,6 +401,7 @@ const BookingForm = () => {
         .time-slot.booked {
           background-color: #f8d7da;
           cursor: not-allowed;
+          color: #a94442;
         }
 
         .selected {
@@ -351,6 +416,7 @@ const BookingForm = () => {
           align-items: center;
           margin-bottom: 10px;
           gap: 10px;
+          flex-wrap: wrap;
         }
 
         .week-navigation button {
@@ -359,6 +425,7 @@ const BookingForm = () => {
           border: none;
           border-radius: 4px;
           cursor: pointer;
+          user-select: none;
         }
 
         .week-navigation button:hover:not(:disabled) {
@@ -372,6 +439,7 @@ const BookingForm = () => {
 
         .week-navigation span {
           font-weight: bold;
+          white-space: nowrap;
         }
 
         button[type='submit'] {
@@ -379,8 +447,14 @@ const BookingForm = () => {
           background-color: #0070f3;
           color: white;
           border: none;
-          border-radius: 5px;
+          border-radius: 6px;
           cursor: pointer;
+          font-weight: 600;
+          width: 100%;
+          max-width: 250px;
+          margin-top: 10px;
+          user-select: none;
+          transition: background-color 0.3s ease;
         }
 
         button[type='submit']:hover {
@@ -391,6 +465,7 @@ const BookingForm = () => {
           margin-top: 20px;
           font-size: 18px;
           color: green;
+          font-weight: 600;
         }
 
         .warning {

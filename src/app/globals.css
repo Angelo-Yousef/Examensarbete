@@ -69,6 +69,100 @@ body {
   color: #0066cc; /* Färgändring vid hover */
 }
 
+/* --- Hamburger-meny knapp --- */
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 28px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1100; /* ovanför navbar */
+}
+
+.menu-toggle:focus {
+  outline: none;
+}
+
+/* Strecken i hamburgerknappen */
+.menu-toggle .bar {
+  width: 28px;
+  height: 3px;
+  background-color: #333;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+/* Animerad "X" när meny är öppen */
+.menu-toggle.open .bar:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.menu-toggle.open .bar:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-toggle.open .bar:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* Mobilvy */
+@media (max-width: 768px) {
+  /* Visa hamburgerknapp */
+  .menu-toggle {
+    display: flex;
+  }
+
+  /* Dölj nav som standard */
+  .top-navbar nav {
+    position: fixed;
+    top: 70px; /* Justera efter navbar-höjd */
+    right: 0;
+    background-color: #fff;
+    width: 200px;
+    height: calc(100vh - 70px);
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    z-index: 1050;
+    padding-top: 20px;
+  }
+
+  /* Visa nav när öppen */
+  .top-navbar nav.open {
+    transform: translateX(0);
+  }
+
+  /* Vertikal lista */
+  .top-navbar nav ul {
+    flex-direction: column;
+    align-items: flex-start;
+    padding-left: 20px;
+  }
+
+  .top-navbar nav ul li {
+    margin: 15px 0;
+  }
+
+  /* Anpassa länkar för mobil */
+  .top-navbar nav ul li a {
+    font-size: 18px;
+    padding: 10px 0;
+    display: block;
+    width: 100%;
+  }
+
+  /* Justera container för mobil */
+  .top-navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
 .book-button {
   background-color: #0066cc;
   color: white;
