@@ -35,8 +35,8 @@ const LoginRegister = () => {
         if (isLogin) {
           // Spara både token och email i localStorage vid inloggning
           localStorage.setItem('token', data.token);
-          localStorage.setItem('email', data.email);  // Spara användarens e-post
-          setLoggedInEmail(data.email);  // Uppdatera UI med den inloggade användarens e-post
+          localStorage.setItem('email', data.email);  
+          setLoggedInEmail(data.email);  
         }
       } else {
         setMessage(data.message || 'Något gick fel.');
@@ -48,7 +48,7 @@ const LoginRegister = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('email'); // Ta bort e-posten från localStorage
+    localStorage.removeItem('email'); 
     setLoggedInEmail('');
     setMessage('🚪 Utloggad.');
   };

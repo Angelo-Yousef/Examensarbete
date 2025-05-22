@@ -1,4 +1,3 @@
-// src/app/about.tsx
 
 import React from "react";
 

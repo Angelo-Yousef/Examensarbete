@@ -1,6 +1,5 @@
-// src/app/behandlingar/page.tsx
 
-"use client"; // This line tells Next.js that this is a client-side component
+"use client"; 
 
 import React from "react";
 import Link from "next/link";

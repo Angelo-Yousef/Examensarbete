@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Booking = require('../models/booking');
 
-// GET: Hämta alla bokningar (för att kunna visa upptagna tider)
+// GET: Hämta alla bokningar för att kunna visa upptagna tider
 router.get('/', async (req, res) => {
   try {
     const bookings = await Booking.find();

@@ -6,8 +6,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 
-const User = require('./models/user'); // Användarmodell
-const bookingRoutes = require('./routes/bookingRoutes'); // Bokningsrutter
+const User = require('./models/user'); 
+const bookingRoutes = require('./routes/bookingRoutes'); 
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -21,7 +21,7 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB ansluten'))
   .catch((err) => console.error('❌ MongoDB-fel:', err));
 
-// ROOT-rutt
+
 app.get('/', (req, res) => {
   res.send('Välkommen till servern!');
 });
@@ -66,7 +66,7 @@ app.post('/api/contact', async (req, res) => {
   }
 });
 
-// 🔐 Registrera användare
+//  Registrera användare
 app.post('/api/auth/register', async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -90,7 +90,7 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-// 🔓 Logga in användare
+//  Logga in användare
 app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -113,10 +113,10 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// 📅 Boknings-API (POST, GET, DELETE via bookingRoutes.js)
+
 app.use('/api/bookings', bookingRoutes);
 
-// 🚀 Starta servern
+
 app.listen(PORT, () => {
   console.log(`✅ Servern körs på http://localhost:${PORT}`);
 });
